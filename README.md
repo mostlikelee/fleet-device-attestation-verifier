@@ -9,7 +9,7 @@ Getting Started
 
 ```bash
 git clone <this repo>
-cd jamf-device-attestation-verifier
+cd fleet-device-attestation-verifier
 npm install
 ```
 
