@@ -1,0 +1,33 @@
+{
+  "name": "Example-ACME-Apple-DMA-Webhook",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "clean": "rm -rf ./dist",
+    "start": "node dist/index.js",
+    "lint": "eslint src --ext .ts",
+    "prettier": "prettier -l --write src",
+    "checking": "npm run prettier && npm run lint"
+  },
+  "dependencies": {
+    "axios": "^1.7.8",
+    "dotenv": "^16.4.5",
+    "winston": "^3.17.0",
+    "body-parser": "^1.20.3",
+    "express": "^4.21.1",
+    "morgan": "^1.10.0",
+    "pvutils": "^1.1.3",
+    "node-cache": "^5.1.2"
+  },
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.2",
+    "@types/node": "^20.8.9",
+    "@typescript-eslint/eslint-plugin": "^8.12.2",
+    "@typescript-eslint/parser": "^8.12.2",
+    "eslint": "^8.54.0",
+    "prettier": "^3.0.3",
+    "tsx": "^4.16.2",
+    "typescript": "^5.5.3"
+  }
+}
