@@ -29,13 +29,6 @@ function checkDevice(
   if (appleAttestationData.SerialNumber !== host.hardware_serial) {
     return false;
   }
-  if (
-    appleAttestationData.UDID &&
-    host.uuid &&
-    appleAttestationData.UDID.toLowerCase() !== host.uuid.toLowerCase()
-  ) {
-    return false;
-  }
   if (config.allowedLabels.length > 0) {
     const hostLabelNames = new Set((host.labels ?? []).map((l) => l.name));
     const matched = config.allowedLabels.some((name) => hostLabelNames.has(name));
