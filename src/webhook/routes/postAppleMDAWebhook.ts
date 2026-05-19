@@ -1,7 +1,7 @@
 import logger from "../../utils/logger";
 import { fromBase64 } from "pvutils";
 import { config } from "../../config";
-import getJamfData, { JamfData } from "../../jamf/getJamfData";
+import getFleetData, { FleetHost } from "../../fleet/getFleetData";
 
 interface AppleAttestationData {
   Nonce: string;
@@ -21,23 +21,25 @@ interface OtherOID {
 // add here your logic for approve device
 function checkDevice(
   appleAttestationData: AppleAttestationData,
-  jamfData: JamfData | undefined
+  host: FleetHost | undefined
 ): boolean {
-  if (!jamfData) {
+  if (!host) {
     return false;
   }
-  if (appleAttestationData.SerialNumber !== jamfData.general?.serial_number) {
+  if (appleAttestationData.SerialNumber !== host.hardware_serial) {
     return false;
   }
-  if (config.allowedGroups.length > 0) {
-    let found: boolean | undefined = undefined;
-    config.allowedGroups.forEach((allowdGroup) => {
-      found ||= jamfData.groups_accounts?.computer_group_memberships.includes(allowdGroup);
-      jamfData.mobile_device_groups?.forEach((mobileDeviceGroup) => {
-        found ||= mobileDeviceGroup.name === allowdGroup;
-      });
-    });
-    if (!found) {
+  if (
+    appleAttestationData.UDID &&
+    host.uuid &&
+    appleAttestationData.UDID.toLowerCase() !== host.uuid.toLowerCase()
+  ) {
+    return false;
+  }
+  if (config.allowedLabels.length > 0) {
+    const hostLabelNames = new Set((host.labels ?? []).map((l) => l.name));
+    const matched = config.allowedLabels.some((name) => hostLabelNames.has(name));
+    if (!matched) {
       return false;
     }
   }
@@ -85,9 +87,9 @@ export default async (req: any, res: any) => {
     }
 
     const appleAttestationData: AppleAttestationData = req.body;
-    const jamfData = await getJamfData(appleAttestationData.SerialNumber);
+    const host = await getFleetData(appleAttestationData.SerialNumber);
 
-    const result: boolean = checkDevice(appleAttestationData, jamfData);
+    const result: boolean = checkDevice(appleAttestationData, host);
     logger.debug(`result - ${JSON.stringify(result)}`);
 
     res.status(200);

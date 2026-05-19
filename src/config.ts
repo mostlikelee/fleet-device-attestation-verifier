@@ -8,10 +8,9 @@ interface Config {
   username: string;
   password: string;
   token: string;
-  jamfUrl?: string;
-  jamfClientId?: string;
-  jamfClientSecret?: string;
-  allowedGroups: string[];
+  fleetUrl?: string;
+  fleetToken?: string;
+  allowedLabels: string[];
 }
 
 export const config: Config = {
@@ -20,8 +19,10 @@ export const config: Config = {
   username: process.env.WEBHOOK_USERNAME || "dynamic",
   password: process.env.WEBHOOK_PASSWORD || "dynamic123",
   token: process.env.WEBHOOK_TOKEN || "token",
-  jamfUrl: process.env.JAMF_URL,
-  jamfClientId: process.env.JAMF_CLIENT_ID,
-  jamfClientSecret: process.env.JAMF_CLIENT_SECRET,
-  allowedGroups: process.env.ALLOWED_GROUPS?.split(",") || [],
+  fleetUrl: process.env.FLEET_URL,
+  fleetToken: process.env.FLEET_TOKEN,
+  allowedLabels:
+    process.env.ALLOWED_LABELS?.split(",")
+      .map((s) => s.trim())
+      .filter(Boolean) || [],
 };

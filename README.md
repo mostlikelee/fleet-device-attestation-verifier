@@ -1,27 +1,39 @@
-# Jamf device attestation verifier #
+# Fleet device attestation verifier #
+
+An ACME webhook that verifies Apple Managed Device Attestation (MDA) submissions against [Fleet](https://fleetdm.com/) as the device source of truth. The ACME CA POSTs `{Nonce, SerialNumber, UDID, ...}` to `/appleMDAWebhook`; this service looks the device up in Fleet by serial number, optionally checks label membership, and returns `true`/`false`.
+
+This is a port of an earlier Jamf-backed verifier. See [AUTH.md](./AUTH.md) for a comparison of the auth approaches.
 
 Getting Started
 ---------------
 
-The easiest way to get started is to clone the repository:
-
 ```bash
-# Get the latest snapshot
-git clone git@bitbucket.org:hydrantid/jamf-device-attestation-verifier.git
-
-# Change directory
+git clone <this repo>
 cd jamf-device-attestation-verifier
-
-# Install NPM dependencies
 npm install
 ```
 
-Create .env file from [.env.example](.env.example) and change required variables:
+Create a `.env` from [.env.example](.env.example) and fill in the required variables:
+
 ```
-JAMF_URL=https://example.jamfcloud.com
-JAMF_CLIENT_ID=6cabf059-21c9-44d6-bbde-02898f7430dd
-JAMF_CLIENT_SECRET=dzmsPks-FwXpks80jhQGZZrAV3H2_ER0NAk91RE-xOBZvfghd98EM1hF9msfkanl
+FLEET_URL=https://fleet.example.com
+FLEET_TOKEN=<API-only user session token>
 ```
+
+### Obtaining `FLEET_TOKEN`
+
+Create an [API-only user](https://fleetdm.com/docs/using-fleet/fleetctl-cli#create-an-api-only-user) in Fleet and use its session token. Read access to hosts is sufficient (`observer` global role).
+
+```bash
+fleetctl user create \
+  --email acme-webhook@example.com \
+  --name "ACME Webhook" \
+  --password <password> \
+  --api-only \
+  --global-role observer
+```
+
+Capture the returned `token` and paste it as `FLEET_TOKEN`. API-only user tokens do not expire; rotate by deleting and recreating the user.
 
 # Running Development with Hot Reloading
 
@@ -52,4 +64,4 @@ $ curl --header "Content-Type: application/json" \
   http://localhost:8001/appleMDAWebhook
 ```
 
-Logic for check device again Jamf is in [postAppleMDAWebhook](./src/webhook/routes/postAppleMDAWebhook.ts) in function ``checkDevice``
+Logic for checking the device against Fleet is in [postAppleMDAWebhook](./src/webhook/routes/postAppleMDAWebhook.ts) in function `checkDevice`. The Fleet lookup itself lives in [getFleetData](./src/fleet/getFleetData.ts).
