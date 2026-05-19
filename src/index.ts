@@ -9,6 +9,10 @@ import webhook from "./webhook";
 
 const app = express();
 
+app.get("/healthz", (_req, res) => {
+  res.status(200).type("text/plain").send("ok");
+});
+
 app.use(bodyParser.json());
 
 app.use(morgan("combined"));
