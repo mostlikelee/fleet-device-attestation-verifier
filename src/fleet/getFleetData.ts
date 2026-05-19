@@ -51,10 +51,9 @@ export default async (serialNumber: string): Promise<FleetHost | undefined> => {
   }
 
   if (response.status === 401) {
-    logger.error(
+    throw new Error(
       `Fleet returned 401 — FLEET_TOKEN is invalid or revoked; rotate the API-only user token`
     );
-    return undefined;
   }
 
   if (response.status < 200 || response.status >= 300) {
